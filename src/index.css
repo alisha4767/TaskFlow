@@ -1,0 +1,108 @@
+/* ============================================================
+   index.css — Global Styles for TaskFlow
+   This is the ONLY CSS file imported into main.jsx.
+   All other styles are handled by Tailwind utility classes.
+   ============================================================ */
+
+/* 1. Import Google Fonts — MUST come first before any other rules.
+      Inter is a clean, professional typeface used by modern SaaS apps
+      like Linear, Vercel, and Notion. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* 2. Import Tailwind CSS — this single line activates all Tailwind utilities */
+@import "tailwindcss";
+
+/* 3. CSS Custom Properties (Variables) — our design tokens.
+   Think of these as named values we can reuse across the entire app.
+   Later, these will power our light/dark theme switching. */
+:root {
+  /* Brand colors */
+  --color-brand-50:  #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-500: #6366f1;  /* Primary indigo — main accent color */
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+
+  /* Neutral grays */
+  --color-gray-50:  #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  /* Semantic colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger:  #ef4444;
+  --color-info:    #3b82f6;
+
+  /* Spacing & sizing */
+  --sidebar-width: 256px;
+  --topbar-height: 64px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* 4. Base reset and font application */
+*, *::before, *::after {
+  box-sizing: border-box;  /* Makes sizing predictable — padding doesn't add to width */
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  /* Smooth scrolling throughout the app */
+  scroll-behavior: smooth;
+}
+
+body {
+  /* Apply Inter font to the entire app, with system fonts as fallback */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;   /* 14px — comfortable reading size for dashboards */
+  line-height: 1.5;
+  color: var(--color-gray-800);
+  background-color: var(--color-gray-50);
+  /* Improve font rendering on macOS/Windows */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 5. Remove default list styles — we'll style lists ourselves */
+ul, ol {
+  list-style: none;
+}
+
+/* 6. Make images behave predictably */
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 7. Buttons and inputs inherit font — browsers don't do this by default */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* 8. Remove default button styles — we'll add our own */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* 9. Links without underline by default */
+a {
+  text-decoration: none;
+  color: inherit;
+}

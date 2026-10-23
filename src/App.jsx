@@ -1,29 +1,128 @@
-// App.jsx — The ROOT component of our entire React application.
+// App.jsx — Root Application Component
 //
-// WHAT CHANGED FROM MILESTONE 1:
-//   Before: App.jsx contained the entire UI (logo, tagline, badges...)
-//   Now:    App.jsx is CLEAN and SIMPLE — it just composes other components.
+// MILESTONE 5: Multi-Page Navigation with React Router
 //
-// This is a core React principle: COMPONENT COMPOSITION.
-// As your app grows, App.jsx becomes a high-level director that says
-// "render this layout with this content" — nothing more.
+// CONCEPTS TAUGHT IN THIS FILE:
+//   1. Routing with React Router (Routes, Route, Navigate)
+//   2. Shared State across multiple pages (lifting state up)
+//   3. Seamless navigation between Dashboard, Tasks, Projects, Analytics, Settings
+//   4. Global modal trigger accessible from any route
 
+import { useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from './components/layout/AppLayout'
-import DashboardPlaceholder from './components/layout/DashboardPlaceholder'
+import Dashboard from './pages/Dashboard'
+import TasksPage from './pages/TasksPage'
+import ProjectsPage from './pages/ProjectsPage'
+import AnalyticsPage from './pages/AnalyticsPage'
+import SettingsPage from './pages/SettingsPage'
+import CreateTaskModal from './components/tasks/CreateTaskModal'
+import { tasks as initialTasks, projects as initialProjects } from './data/mockData'
 
-// Notice how clean and readable this is!
-// App.jsx doesn't know HOW AppLayout or DashboardPlaceholder work.
-// It just declares WHAT should be on screen.
 function App() {
+  // ── 1. The Core Application State ──────────────────────────────────────────
+  const [tasks, setTasks] = useState(initialTasks)
+  const [projects] = useState(initialProjects)
+
+  // ── 2. Modal Open/Close State ──────────────────────────────────────────────
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // ── 3. Handler: Toggle Task Status ─────────────────────────────────────────
+  function handleToggleTaskStatus(taskId) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.id === taskId) {
+          const nextStatus = task.status === 'completed' ? 'todo' : 'completed'
+          return { ...task, status: nextStatus }
+        }
+        return task
+      })
+    )
+  }
+
+  // ── 4. Handler: Add a New Task ─────────────────────────────────────────────
+  function handleAddTask(newTask) {
+    setTasks((prevTasks) => [newTask, ...prevTasks])
+  }
+
+  // ── 5. Handler: Delete a Task ──────────────────────────────────────────────
+  function handleDeleteTask(taskId) {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId))
+  }
+
+  // ── 6. Handler: Reset Data to Defaults ─────────────────────────────────────
+  function handleResetData() {
+    setTasks(initialTasks)
+  }
+
   return (
-    // AppLayout wraps everything — it provides the Sidebar and Topbar.
-    // pageTitle="Dashboard" is passed as a PROP to AppLayout,
-    // which then passes it further down to Topbar.
-    //
-    // DashboardPlaceholder is passed as the 'children' prop automatically —
-    // it appears wherever AppLayout puts {children} in its JSX.
-    <AppLayout pageTitle="Dashboard">
-      <DashboardPlaceholder />
+    <AppLayout onOpenNewTask={() => setIsModalOpen(true)}>
+      <Routes>
+        {/* Main Dashboard Route */}
+        <Route
+          path="/"
+          element={
+            <Dashboard
+              tasks={tasks}
+              onToggleTaskStatus={handleToggleTaskStatus}
+              onDeleteTask={handleDeleteTask}
+              onOpenNewTask={() => setIsModalOpen(true)}
+            />
+          }
+        />
+
+        {/* Dashboard alias redirect */}
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+
+        {/* Dedicated Tasks View */}
+        <Route
+          path="/tasks"
+          element={
+            <TasksPage
+              tasks={tasks}
+              projects={projects}
+              onToggleTaskStatus={handleToggleTaskStatus}
+              onDeleteTask={handleDeleteTask}
+              onOpenNewTask={() => setIsModalOpen(true)}
+            />
+          }
+        />
+
+        {/* Projects View */}
+        <Route
+          path="/projects"
+          element={
+            <ProjectsPage
+              projects={projects}
+              tasks={tasks}
+              onOpenNewTask={() => setIsModalOpen(true)}
+            />
+          }
+        />
+
+        {/* Analytics & Metrics View */}
+        <Route
+          path="/analytics"
+          element={<AnalyticsPage tasks={tasks} projects={projects} />}
+        />
+
+        {/* Account & Settings View */}
+        <Route
+          path="/settings"
+          element={<SettingsPage tasks={tasks} onResetData={handleResetData} />}
+        />
+
+        {/* Fallback to Home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {/* Global Create Task Modal */}
+      <CreateTaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddTask={handleAddTask}
+        projects={projects}
+      />
     </AppLayout>
   )
 }

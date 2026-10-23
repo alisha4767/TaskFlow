@@ -8,7 +8,7 @@
 //   3. Seamless navigation between Dashboard, Tasks, Projects, Analytics, Settings
 //   4. Global modal trigger accessible from any route
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from './components/layout/AppLayout'
 import Dashboard from './pages/Dashboard'
@@ -20,9 +20,42 @@ import CreateTaskModal from './components/tasks/CreateTaskModal'
 import { tasks as initialTasks, projects as initialProjects } from './data/mockData'
 
 function App() {
-  // ── 1. The Core Application State ──────────────────────────────────────────
-  const [tasks, setTasks] = useState(initialTasks)
-  const [projects] = useState(initialProjects)
+  // ── 1. The Core Application State with LocalStorage Persistence ───────────
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('taskflow_tasks')
+      return saved ? JSON.parse(saved) : initialTasks
+    } catch {
+      return initialTasks
+    }
+  })
+
+  const [projects, setProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem('taskflow_projects')
+      return saved ? JSON.parse(saved) : initialProjects
+    } catch {
+      return initialProjects
+    }
+  })
+
+  // Synchronize tasks to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem('taskflow_tasks', JSON.stringify(tasks))
+    } catch (err) {
+      console.error('Failed to save tasks to localStorage:', err)
+    }
+  }, [tasks])
+
+  // Synchronize projects to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem('taskflow_projects', JSON.stringify(projects))
+    } catch (err) {
+      console.error('Failed to save projects to localStorage:', err)
+    }
+  }, [projects])
 
   // ── 2. Modal Open/Close State ──────────────────────────────────────────────
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -53,6 +86,13 @@ function App() {
   // ── 6. Handler: Reset Data to Defaults ─────────────────────────────────────
   function handleResetData() {
     setTasks(initialTasks)
+    setProjects(initialProjects)
+    try {
+      localStorage.setItem('taskflow_tasks', JSON.stringify(initialTasks))
+      localStorage.setItem('taskflow_projects', JSON.stringify(initialProjects))
+    } catch (err) {
+      console.error('Failed to reset localStorage data:', err)
+    }
   }
 
   return (

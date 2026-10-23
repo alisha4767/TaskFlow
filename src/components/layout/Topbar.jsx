@@ -7,42 +7,70 @@
 //   2. Using props to render dynamic content
 //   3. Composition — combining multiple small UI elements in one component
 
-import { Search, Bell, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { Search, Bell, Sun, Plus, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT: Topbar
 //
 // Props received:
-//   pageTitle → string: the name of the current page (e.g. "Dashboard")
-//
-// Why pass pageTitle as a prop instead of hardcoding it?
-// Because this same Topbar will be used on EVERY page — Dashboard, Tasks,
-// Projects, etc. The title needs to change depending on which page we're on.
-// Props let us reuse the same component with different data.
+//   pageTitle          → string: the name of the current page (e.g. "Dashboard")
+//   onOpenNewTask      → function: callback when user clicks '+ New Task' button
+//   onToggleSidebar    → function: callback to toggle sidebar collapsed state
+//   isSidebarCollapsed → boolean: whether sidebar is currently collapsed
 // ─────────────────────────────────────────────────────────────────────────────
-function Topbar({ pageTitle }) {
+function Topbar({ pageTitle, onOpenNewTask, onToggleSidebar, isSidebarCollapsed }) {
+  // Compute a time-of-day greeting using a lazy state initializer
+  const [greeting] = useState(() => {
+    const hour = new Date().getHours()
+    return hour < 12 ? 'Good morning'
+      : hour < 17 ? 'Good afternoon'
+      : 'Good evening'
+  })
+
   return (
     // sticky top-0 → stays at the top of the screen as you scroll content
     // z-10 → sits above the content (lower z-index than sidebar's z-20)
     // backdrop-blur-sm → slight blur effect on the background (glassmorphism)
-    <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10 flex items-center justify-between px-6 shrink-0">
+    <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10 flex items-center justify-between px-6 shrink-0 transition-all duration-300">
 
-      {/* ── Left Side: Page Title ─────────────────────────────────── */}
-      <div>
-        {/* The pageTitle prop is rendered here.
-            If no pageTitle is passed, we fall back to 'Dashboard' using
-            the || operator: (pageTitle || 'Dashboard') */}
-        <h1 className="text-[15px] font-semibold text-gray-900">
-          {pageTitle || 'Dashboard'}
-        </h1>
-        {/* A subtle breadcrumb-style subtitle */}
-        <p className="text-xs text-gray-400 mt-0.5">
-          Welcome back, Alisha 👋
-        </p>
+      {/* ── Left Side: Toggle & Page Title ─────────────────────────── */}
+      <div className="flex items-center gap-3">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="p-1.5 -ml-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
+        )}
+        <div>
+          <h1 className="text-[15px] font-semibold text-gray-900">
+            {pageTitle || 'Dashboard'}
+          </h1>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {greeting}, Alisha 👋
+          </p>
+        </div>
       </div>
 
       {/* ── Right Side: Actions ───────────────────────────────────── */}
       <div className="flex items-center gap-2">
+
+        {/* New Task button — opens create task modal */}
+        {onOpenNewTask && (
+          <button
+            type="button"
+            onClick={onOpenNewTask}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm hover:shadow transition-all"
+            title="Create new task"
+          >
+            <Plus size={14} />
+            <span className="hidden sm:inline">New Task</span>
+          </button>
+        )}
 
         {/* Search button — will open a search modal in a future milestone */}
         <button

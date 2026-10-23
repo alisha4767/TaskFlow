@@ -12,42 +12,59 @@
 // This lets AppLayout be a reusable WRAPPER — the same shell works for any page,
 // because the page's unique content is passed in via children.
 
+import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
+
+const titleMap = {
+  '/': 'Dashboard',
+  '/dashboard': 'Dashboard',
+  '/tasks': 'Tasks',
+  '/projects': 'Projects',
+  '/analytics': 'Analytics',
+  '/settings': 'Settings',
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT: AppLayout
 //
 // Props received:
-//   children  → whatever is nested between <AppLayout>...</AppLayout> tags
-//   pageTitle → passed down to Topbar to show the current page name
+//   children      → whatever is nested between <AppLayout>...</AppLayout> tags
+//   pageTitle     → optional override for the current page name
+//   onOpenNewTask → passed down to Topbar for the '+ New Task' button
 // ─────────────────────────────────────────────────────────────────────────────
-function AppLayout({ children, pageTitle }) {
+function AppLayout({ children, pageTitle, onOpenNewTask }) {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const location = useLocation()
+  const displayTitle = pageTitle || titleMap[location.pathname] || 'Dashboard'
+
+  function handleToggleSidebar() {
+    setIsSidebarCollapsed((prev) => !prev)
+  }
+
   return (
-    // The outer div fills the entire screen.
-    // bg-gray-50 → very light gray — the content area background color
     <div className="min-h-screen bg-gray-50">
-
-      {/* Sidebar is fixed — it doesn't move with scrolling */}
-      <Sidebar />
-
-      {/* Everything to the RIGHT of the sidebar */}
-      {/* ml-64 = margin-left: 256px → pushes content past the fixed sidebar */}
-      <div className="ml-64 flex flex-col min-h-screen">
-
-        {/* Topbar is sticky — stays at top as content scrolls */}
-        {/* We pass pageTitle DOWN to Topbar via props */}
-        <Topbar pageTitle={pageTitle} />
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
+      />
+      <div
+        className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+          isSidebarCollapsed ? 'ml-20' : 'ml-64'
+        }`}
+      >
+        <Topbar
+          pageTitle={displayTitle}
+          onOpenNewTask={onOpenNewTask}
+          onToggleSidebar={handleToggleSidebar}
+          isSidebarCollapsed={isSidebarCollapsed}
+        />
 
         {/* Main content area — this is where each page's content appears */}
-        {/* flex-1 → grows to fill remaining vertical space */}
-        {/* overflow-y-auto → allows this area (not the whole page) to scroll */}
         <main className="flex-1 p-6">
-          {/* 'children' is rendered here — it's whatever was put between
-              <AppLayout> tags in App.jsx */}
           {children}
         </main>
-
       </div>
     </div>
   )

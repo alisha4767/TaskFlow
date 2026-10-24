@@ -12,7 +12,7 @@
 // This lets AppLayout be a reusable WRAPPER — the same shell works for any page,
 // because the page's unique content is passed in via children.
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
@@ -35,7 +35,23 @@ const titleMap = {
 //   onOpenNewTask → passed down to Topbar for the '+ New Task' button
 // ─────────────────────────────────────────────────────────────────────────────
 function AppLayout({ children, pageTitle, onOpenNewTask }) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      const saved = localStorage.getItem('taskflow_sidebar_collapsed')
+      return saved !== null ? JSON.parse(saved) : false
+    } catch {
+      return false
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('taskflow_sidebar_collapsed', JSON.stringify(isSidebarCollapsed))
+    } catch {
+      // ignore
+    }
+  }, [isSidebarCollapsed])
+
   const location = useLocation()
   const displayTitle = pageTitle || titleMap[location.pathname] || 'Dashboard'
 

@@ -5,6 +5,8 @@
 ---
 
 ## 1. Project Overview & Tech Stack
+- **Repository**: [https://github.com/alisha4767/TaskFlow](https://github.com/alisha4767/TaskFlow)
+- **Branch**: `main`
 - **Framework**: React 19 + Vite
 - **Routing**: `react-router-dom` v7
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`) + Vanilla CSS custom properties

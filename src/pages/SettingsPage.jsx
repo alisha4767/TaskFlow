@@ -14,11 +14,15 @@ import {
   Moon,
 } from 'lucide-react'
 
-function SettingsPage({ tasks, onResetData }) {
+function SettingsPage({
+  tasks = [],
+  theme = 'light',
+  onSelectTheme,
+  onResetData,
+}) {
   const [name, setName] = useState('Alisha Shakir')
   const [email, setEmail] = useState('alisha.shakir@taskflow.dev')
   const [role, setRole] = useState('Frontend Engineer & Product Designer')
-  const [theme, setTheme] = useState('light')
   const [notifications, setNotifications] = useState({
     dueDateAlerts: true,
     weeklyDigest: false,
@@ -47,14 +51,14 @@ function SettingsPage({ tasks, onResetData }) {
       {/* ── Page Header ──────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Account & Settings</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Account & Settings</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Manage your personal profile, notification preferences, and workspace data.
           </p>
         </div>
 
         {isSaved && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-semibold animate-fade-in">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-semibold animate-fade-in">
             <Check size={14} />
             <span>Changes saved!</span>
           </div>
@@ -62,10 +66,10 @@ function SettingsPage({ tasks, onResetData }) {
       </div>
 
       {/* ── Profile Section ──────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs space-y-5">
-        <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-          <User size={18} className="text-indigo-600" />
-          <h3 className="text-base font-bold text-gray-900">Personal Information</h3>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-5">
+        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+          <User size={18} className="text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">Personal Information</h3>
         </div>
 
         <form onSubmit={handleSave} className="space-y-4">
@@ -74,47 +78,47 @@ function SettingsPage({ tasks, onResetData }) {
               AS
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">{name}</p>
-              <p className="text-xs text-gray-400">Profile avatar generated from initials</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">{name}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Profile avatar generated from initials</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                 Full Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-              Role / Title
-            </label>
-            <input
-              type="text"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
-            />
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                Role / Title
+              </label>
+              <input
+                type="text"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all"
+              />
+            </div>
           </div>
 
           <div className="flex justify-end pt-2">
@@ -129,16 +133,16 @@ function SettingsPage({ tasks, onResetData }) {
       </div>
 
       {/* ── Appearance & Theme ───────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-          <Palette size={18} className="text-indigo-600" />
-          <h3 className="text-base font-bold text-gray-900">Appearance & Theme</h3>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-4">
+        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+          <Palette size={18} className="text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">Appearance & Theme</h3>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             { id: 'light', label: 'Light', icon: Sun, desc: 'Clean bright layout' },
-            { id: 'dark', label: 'Dark', icon: Moon, desc: 'Coming in Milestone 6' },
+            { id: 'dark', label: 'Dark', icon: Moon, desc: 'Sleek dark interface' },
             { id: 'system', label: 'System', icon: Laptop, desc: 'Matches OS settings' },
           ].map((item) => {
             const Icon = item.icon
@@ -147,16 +151,16 @@ function SettingsPage({ tasks, onResetData }) {
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setTheme(item.id)}
+                onClick={() => onSelectTheme && onSelectTheme(item.id)}
                 className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                   isSelected
-                    ? 'border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-100'
-                    : 'border-gray-200 hover:bg-gray-50'
+                    ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/40 ring-2 ring-indigo-100 dark:ring-indigo-900'
+                    : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
-                <Icon size={18} className={isSelected ? 'text-indigo-600' : 'text-gray-500'} />
-                <p className="text-xs font-bold text-gray-900 mt-2">{item.label}</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">{item.desc}</p>
+                <Icon size={18} className={isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} />
+                <p className="text-xs font-bold text-gray-900 dark:text-white mt-2">{item.label}</p>
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{item.desc}</p>
               </button>
             )
           })}
@@ -164,10 +168,10 @@ function SettingsPage({ tasks, onResetData }) {
       </div>
 
       {/* ── Notifications ────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-          <Bell size={18} className="text-indigo-600" />
-          <h3 className="text-base font-bold text-gray-900">Notifications</h3>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-4">
+        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+          <Bell size={18} className="text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">Notifications</h3>
         </div>
 
         <div className="space-y-3">
@@ -179,74 +183,70 @@ function SettingsPage({ tasks, onResetData }) {
             },
             {
               id: 'weeklyDigest',
-              title: 'Weekly Productivity Digest',
-              desc: 'Get a summary report of your weekly sprint progress every Monday',
+              title: 'Weekly Productivity Summary',
+              desc: 'Email summary of tasks completed and milestones accomplished',
             },
             {
               id: 'soundEffects',
-              title: 'Completion Sound Chimes',
-              desc: 'Play a subtle audio tone when marking tasks as finished',
+              title: 'Audio Micro-interactions',
+              desc: 'Play subtle auditory cue when completing tasks or moving cards',
             },
-          ].map((n) => (
-            <label
-              key={n.id}
-              className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50/50 cursor-pointer"
+          ].map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors"
             >
               <div>
-                <p className="text-xs font-semibold text-gray-900">{n.title}</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">{n.desc}</p>
+                <p className="text-xs font-bold text-gray-900 dark:text-white">{item.title}</p>
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{item.desc}</p>
               </div>
               <input
                 type="checkbox"
-                checked={notifications[n.id]}
+                checked={notifications[item.id]}
                 onChange={(e) =>
-                  setNotifications({ ...notifications, [n.id]: e.target.checked })
+                  setNotifications({ ...notifications, [item.id]: e.target.checked })
                 }
-                className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                className="w-4 h-4 text-indigo-600 rounded border-gray-300 dark:border-gray-600 focus:ring-indigo-500 cursor-pointer"
               />
-            </label>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* ── Workspace Data Management ────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-          <Database size={18} className="text-indigo-600" />
-          <h3 className="text-base font-bold text-gray-900">Workspace Data Management</h3>
+      {/* ── Data & Workspace Management ──────────────────────────────────────── */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-4">
+        <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+          <Database size={18} className="text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">Data & Storage</h3>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-gray-50 rounded-xl">
-          <div>
-            <p className="text-xs font-semibold text-gray-900">Export TaskFlow Data</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">
-              Download your current active tasks and project statuses as a JSON file.
-            </p>
-          </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Your tasks and projects are securely stored in your local browser storage. You can backup your data as JSON or reset to default demo content.
+        </p>
+
+        <div className="flex flex-wrap gap-3 pt-2">
           <button
             type="button"
             onClick={handleExportData}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold transition-all cursor-pointer"
           >
             <Download size={14} />
-            Export JSON
+            Export Data (JSON)
           </button>
-        </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-rose-50/40 border border-rose-100 rounded-xl">
-          <div>
-            <p className="text-xs font-semibold text-rose-900">Reset Sample Data</p>
-            <p className="text-[11px] text-rose-600 mt-0.5">
-              Restore the initial mock tasks and project statuses to default.
-            </p>
-          </div>
           <button
             type="button"
-            onClick={onResetData}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
+            onClick={() => {
+              if (window.confirm('Reset all tasks and projects back to sample defaults? Any custom tasks will be erased.')) {
+                if (onResetData) {
+                  onResetData()
+                }
+              }
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs font-semibold transition-all cursor-pointer"
           >
             <RotateCcw size={14} />
-            Reset to Default
+            Reset to Sample Data
           </button>
         </div>
       </div>

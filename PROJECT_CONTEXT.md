@@ -9,7 +9,7 @@
 - **Branch**: `main`
 - **Framework**: React 19 + Vite
 - **Routing**: `react-router-dom` v7
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`) + Vanilla CSS custom properties
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`) + class-based dark mode (`@custom-variant dark (&:where(.dark, .dark *));`) + Vanilla CSS custom properties
 - **Icons**: Lucide React (`lucide-react`)
 - **Linter**: Oxlint (`oxlint`)
 - **Fonts**: Google Fonts Inter
@@ -26,23 +26,26 @@ TaskFlow/
 ├── package.json                 # Dependencies & project scripts
 └── src/
     ├── main.jsx                 # App entry point wrapped with <BrowserRouter>
-    ├── App.jsx                  # Root component: manages tasks/projects state & <Routes>
-    ├── index.css                # Global CSS tokens & Tailwind import
+    ├── App.jsx                  # Root component: manages tasks/projects/theme state & <Routes>
+    ├── index.css                # Global CSS tokens, dark mode variant, & Tailwind import
     ├── data/
     │   └── mockData.js          # Shared mock data for projects & tasks
     ├── components/
+    │   ├── common/
+    │   │   └── CommandPalette.jsx  # Global Ctrl+K / Cmd+K instant search & command runner
     │   ├── layout/
     │   │   ├── AppLayout.jsx    # Shell wrapper with dynamic title & collapsible layout
-    │   │   ├── Sidebar.jsx      # Collapsible side navigation with NavLink & tooltips
-    │   │   └── Topbar.jsx       # Header with greeting, title, collapse toggle & quick actions
+    │   │   ├── Sidebar.jsx      # Collapsible side navigation with NavLink & dark mode
+    │   │   └── Topbar.jsx       # Header with greeting, title, search trigger, theme toggle & actions
     │   └── tasks/
-    │       └── CreateTaskModal.jsx # Modal with validation to add tasks
+    │       ├── CreateTaskModal.jsx  # Modal with validation to add tasks
+    │       └── TaskDetailDrawer.jsx # Slide-over drawer to view, edit, update & delete tasks
     └── pages/
         ├── Dashboard.jsx        # Summary cards, banner, recent tasks list & project progress
-        ├── TasksPage.jsx        # Multi-criteria filtering, search, sorting & task actions
+        ├── TasksPage.jsx        # List & Kanban views, drag-and-drop, search, filters & edit trigger
         ├── ProjectsPage.jsx     # Live project completion progress & task breakdown
         ├── AnalyticsPage.jsx    # Productivity metrics, status & priority distribution charts
-        └── SettingsPage.jsx     # Profile settings, appearance themes, notifications & data export
+        └── SettingsPage.jsx     # Profile settings, interactive theme switcher & data export
 ```
 
 ---
@@ -83,9 +86,10 @@ TaskFlow/
   - Dynamic `ml-64` / `ml-20` transition for the main content area.
 
 ### LocalStorage Persistence
-- **Tasks & Projects**: Stored in `localStorage` keys `taskflow_tasks` and `taskflow_projects`. All task additions, deletions, and status toggles automatically sync in real-time.
+- **Tasks & Projects**: Stored in `localStorage` keys `taskflow_tasks` and `taskflow_projects`. All task additions, deletions, edits, and status toggles automatically sync in real-time.
 - **Sidebar State**: Remembered in `localStorage` under `taskflow_sidebar_collapsed` so user preference persists across page reloads.
 - **View Preference**: Remembered in `localStorage` under `taskflow_tasks_view` ('list' or 'board').
+- **Theme Preference**: Stored in `localStorage` under `taskflow_theme` ('light' | 'dark' | 'system').
 - **Reset Support**: Resetting data in Settings automatically rewrites `localStorage` with fresh defaults.
 
 ### Interactive Kanban Board View
@@ -93,6 +97,25 @@ TaskFlow/
 - **4 Status Columns**: `To Do`, `In Progress`, `In Review`, and `Completed` with color-coded tops and count badges.
 - **HTML5 Drag-and-Drop**: Drag task cards between columns with hover ring indicators and instant state synchronization.
 - **Quick Actions**: One-click advance button (`ChevronRight`) to cycle through statuses, completion checkboxes, and column-specific `+` quick-add buttons.
+
+### Milestone 6: Command Palette (Ctrl+K), Dark Mode, & Task Details Drawer
+1. **Command Palette (`Ctrl+K` / `⌘K`)**:
+   - Global keyboard listener (`Ctrl+K` or `Cmd+K`) and dedicated Topbar search button trigger.
+   - Live multi-domain search querying both Tasks and Projects simultaneously.
+   - Quick actionable commands: Create New Task, Toggle Dark/Light Mode, Export Workspace Data (JSON), Reset Sample Data, and direct Page Navigation.
+   - Full keyboard navigation: `↑` and `↓` arrow keys to cycle results, `Enter` to execute, and `Esc` to close.
+   - Automatic auto-scroll of active item into view.
+2. **Comprehensive Dark Mode**:
+   - Tailwind CSS v4 class-based variant enabled: `@custom-variant dark (&:where(.dark, .dark *));`.
+   - Dual controls: Topbar Sun/Moon icon toggle and Settings page Appearance selector (Light / Dark / System).
+   - Instant HTML class synchronization (`html.dark`) with smooth color transitions and persistent `localStorage` storage.
+   - Cohesive dark palettes applied across all 5 pages, Sidebar, Topbar, Modals, Drawers, and Palette.
+3. **Task Edit Details Drawer**:
+   - Slide-over drawer opening smoothly on any task item click from Dashboard, Tasks List, or Kanban Board cards.
+   - Comprehensive editable fields: Title, Status, Priority, Project, Due Date, and Description notes.
+   - Overdue alert banner dynamically calculated if deadline has passed for incomplete tasks.
+   - Completion checkbox toggle and quick task deletion right from drawer header.
+   - Immediate parent state persistence syncing directly to `localStorage`.
 
 ---
 
@@ -107,5 +130,8 @@ TaskFlow/
 | 2026-10-23 | `docs: context file` | Initialized `PROJECT_CONTEXT.md` for ongoing feature tracking and change recording |
 | 2026-10-23 | `feat: local storage persistence` | Added real-time localStorage sync for tasks, projects, and sidebar collapsed preference |
 | 2026-10-24 | `feat: kanban board view` | Added Kanban board view with HTML5 drag-and-drop, quick column add, and view toggling |
-
+| 2026-10-29 | `feat: command palette` | Added global Ctrl+K / Cmd+K Command Palette with task/project search and keyboard navigation |
+| 2026-10-29 | `feat: dark mode` | Implemented class-based dark mode across all components with Topbar toggle & settings sync |
+| 2026-10-29 | `feat: task edit drawer` | Added interactive slide-over TaskDetailDrawer with full field editing, overdue alert & delete |
+| 2026-10-29 | `docs: update context` | Updated PROJECT_CONTEXT.md with detailed Milestone 6 architecture and changelog |
 

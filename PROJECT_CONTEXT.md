@@ -7,7 +7,9 @@
 ## 1. Project Overview & Tech Stack
 - **Repository**: [https://github.com/alisha4767/TaskFlow](https://github.com/alisha4767/TaskFlow)
 - **Branch**: `main`
-- **Framework**: React 19 + Vite
+- **Frontend**: React 19 + Vite (`@vitejs/plugin-react`)
+- **Backend**: Node.js + Express REST API (`server/index.js`)
+- **Database**: SQLite with `better-sqlite3` (`server/data/taskflow.db`)
 - **Routing**: `react-router-dom` v7
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`) + class-based dark mode (`@custom-variant dark (&:where(.dark, .dark *));`) + Vanilla CSS custom properties
 - **Icons**: Lucide React (`lucide-react`)
@@ -21,22 +23,29 @@
 ```text
 TaskFlow/
 ├── index.html                   # HTML entry point with viewport & Google Fonts
-├── vite.config.js               # Vite config with React and Tailwind plugins
+├── vite.config.js               # Vite config with React, Tailwind, and /api proxy
 ├── PROJECT_CONTEXT.md           # This continuous context & changelog file
-├── package.json                 # Dependencies & project scripts
+├── package.json                 # Dependencies, dev server, and Express scripts
+├── server/
+│   ├── db.js                    # SQLite database schema, WAL mode, seeds, and CRUD queries
+│   ├── index.js                 # Express REST API server (/api/tasks, /api/projects, /api/health)
+│   └── data/
+│       └── taskflow.db          # Persistent SQLite database file
 └── src/
     ├── main.jsx                 # App entry point wrapped with <BrowserRouter>
-    ├── App.jsx                  # Root component: manages tasks/projects/theme state & <Routes>
+    ├── App.jsx                  # Root component: manages tasks/projects/theme/backend sync & <Routes>
     ├── index.css                # Global CSS tokens, dark mode variant, & Tailwind import
+    ├── services/
+    │   └── api.js               # Frontend API client service with offline LocalStorage fallback
     ├── data/
-    │   └── mockData.js          # Shared mock data for projects & tasks
+    │   └── mockData.js          # Shared initial mock data for projects & tasks
     ├── components/
     │   ├── common/
     │   │   └── CommandPalette.jsx  # Global Ctrl+K / Cmd+K instant search & command runner
     │   ├── layout/
     │   │   ├── AppLayout.jsx    # Shell wrapper with dynamic title & collapsible layout
     │   │   ├── Sidebar.jsx      # Collapsible side navigation with NavLink & dark mode
-    │   │   └── Topbar.jsx       # Header with greeting, title, search trigger, theme toggle & actions
+    │   │   └── Topbar.jsx       # Header with greeting, title, SQLite status badge & actions
     │   └── tasks/
     │       ├── CreateTaskModal.jsx  # Modal with validation to add tasks
     │       └── TaskDetailDrawer.jsx # Slide-over drawer to view, edit, update & delete tasks
@@ -45,7 +54,7 @@ TaskFlow/
         ├── TasksPage.jsx        # List & Kanban views, drag-and-drop, search, filters & edit trigger
         ├── ProjectsPage.jsx     # Live project completion progress & task breakdown
         ├── AnalyticsPage.jsx    # Productivity metrics, status & priority distribution charts
-        └── SettingsPage.jsx     # Profile settings, interactive theme switcher & data export
+        └── SettingsPage.jsx     # Profile settings, interactive theme switcher & database info
 ```
 
 ---
@@ -117,6 +126,30 @@ TaskFlow/
    - Completion checkbox toggle and quick task deletion right from drawer header.
    - Immediate parent state persistence syncing directly to `localStorage`.
 
+### Milestone 7: Node.js + Express REST API with SQLite Database
+1. **SQLite Database Layer (`server/db.js`)**:
+   - High-performance, synchronous database operations using `better-sqlite3`.
+   - Write-Ahead Logging (`WAL` mode) and Foreign Keys enabled.
+   - Persistent database file located at `server/data/taskflow.db`.
+   - Relational schemas for `projects` and `tasks` with automatic seeding of mock data on first startup.
+   - Comprehensive query helpers: `getTasks()`, `createTask()`, `updateTask()`, `deleteTask()`, `getProjects()`, `createProject()`, and `resetDatabase()`.
+2. **Express RESTful API Server (`server/index.js`)**:
+   - Standard REST endpoints:
+     - `GET /api/health` — Service health & uptime
+     - `GET /api/tasks` & `POST /api/tasks` — List and create tasks
+     - `GET /api/tasks/:id`, `PATCH /api/tasks/:id`, `DELETE /api/tasks/:id` — Single task operations
+     - `GET /api/projects` & `POST /api/projects` — Projects management
+     - `POST /api/reset` — Restore seed data
+   - Request logging and centralized error handling middleware.
+3. **Vite Development Proxy & Concurrent Execution**:
+   - Configured `vite.config.js` with server proxy forwarding `/api/*` to `http://localhost:5000`.
+   - Configured `npm run server` and `npm run dev:all` using `concurrently`.
+4. **Resilient Frontend API Client (`src/services/api.js`)**:
+   - Asynchronous fetch client with typed helper functions.
+   - Optimistic UI updates with instant feedback.
+   - Automatic offline fallback: If backend server is ever stopped or unreachable, the application smoothly switches to browser LocalStorage without crashing or losing data.
+   - Topbar visual badge indicating `SQLite DB (Online)` vs `Local Storage (Offline)`.
+
 ---
 
 ## 4. Changelog & Git History
@@ -133,5 +166,9 @@ TaskFlow/
 | 2026-10-29 | `feat: command palette` | Added global Ctrl+K / Cmd+K Command Palette with task/project search and keyboard navigation |
 | 2026-10-29 | `feat: dark mode` | Implemented class-based dark mode across all components with Topbar toggle & settings sync |
 | 2026-10-29 | `feat: task edit drawer` | Added interactive slide-over TaskDetailDrawer with full field editing, overdue alert & delete |
-| 2026-10-29 | `docs: update context` | Updated PROJECT_CONTEXT.md with detailed Milestone 6 architecture and changelog |
+| 2026-10-29 | `feat: sqlite database layer` | Added SQLite schema and CRUD database module with better-sqlite3 in `server/db.js` |
+| 2026-10-29 | `feat: express rest api` | Built Express REST API server with task and project endpoints in `server/index.js` |
+| 2026-10-29 | `feat: vite proxy & dev scripts` | Configured Vite /api proxy and concurrently dev:all scripts in package.json |
+| 2026-10-29 | `feat: frontend api integration` | Created `src/services/api.js` and wired optimistic backend sync with offline fallback |
+| 2026-10-29 | `docs: update context for backend` | Documented Milestone 7 Node.js + Express + SQLite architecture in PROJECT_CONTEXT.md |
 

@@ -25,6 +25,7 @@ const titleMap = {
 //   onOpenCommandPalette → passed down to Topbar for search button / palette
 //   theme                → 'light' | 'dark' | 'system'
 //   onToggleTheme        → callback to toggle theme
+//   isBackendConnected   → boolean: whether connected to SQLite backend
 // ─────────────────────────────────────────────────────────────────────────────
 function AppLayout({
   children,
@@ -33,6 +34,7 @@ function AppLayout({
   onOpenCommandPalette,
   theme = 'light',
   onToggleTheme,
+  isBackendConnected = false,
 }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     try {
@@ -77,6 +79,7 @@ function AppLayout({
           onOpenCommandPalette={onOpenCommandPalette}
           theme={theme}
           onToggleTheme={onToggleTheme}
+          isBackendConnected={isBackendConnected}
         />
 
         {/* Main content area — this is where each page's content appears */}

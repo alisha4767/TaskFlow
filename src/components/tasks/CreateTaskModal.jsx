@@ -20,17 +20,18 @@ import { X, Calendar, Flag, FolderKanban, Plus } from 'lucide-react'
 //   onAddTask  → function: callback to append the new task into parent state
 //   projects   → array: list of projects for the dropdown selector
 // ─────────────────────────────────────────────────────────────────────────────
-function CreateTaskModal({ isOpen, onClose, onAddTask, projects }) {
-  // ── Form State (Controlled Inputs) ──────────────────────────────────────────
-  // Each input in the form is tied to its own useState hook.
-  // Whenever the user types, the onChange event updates this state,
-  // and the input's 'value' attribute displays the updated state.
-  // This is called a "Controlled Component" in React.
+function CreateTaskModal({
+  isOpen,
+  onClose,
+  onAddTask,
+  projects,
+  defaultStatus = 'todo',
+}) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [projectId, setProjectId] = useState(projects[0]?.id || '')
   const [priority, setPriority] = useState('medium')
-  const [status, setStatus] = useState('todo')
+  const [status, setStatus] = useState(defaultStatus)
   const [dueDate, setDueDate] = useState(() =>
     new Date().toISOString().split('T')[0] // default to today
   )

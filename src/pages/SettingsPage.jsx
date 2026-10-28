@@ -19,6 +19,7 @@ function SettingsPage({
   theme = 'light',
   onSelectTheme,
   onResetData,
+  isBackendConnected = false,
 }) {
   const [name, setName] = useState('Alisha Shakir')
   const [email, setEmail] = useState('alisha.shakir@taskflow.dev')
@@ -220,8 +221,37 @@ function SettingsPage({
           <h3 className="text-base font-bold text-gray-900 dark:text-white">Data & Storage</h3>
         </div>
 
+        <div className="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isBackendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+              }`}
+            />
+            <div>
+              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {isBackendConnected ? 'Express REST API + SQLite Database' : 'LocalStorage Offline Fallback'}
+              </p>
+              <p className="text-[11px] text-gray-400 dark:text-gray-500">
+                {isBackendConnected
+                  ? 'Active file storage at server/data/taskflow.db'
+                  : 'Backend server not detected; saving changes to browser local storage'}
+              </p>
+            </div>
+          </div>
+          <span
+            className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+              isBackendConnected
+                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
+            }`}
+          >
+            {isBackendConnected ? 'Online' : 'Local'}
+          </span>
+        </div>
+
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Your tasks and projects are securely stored in your local browser storage. You can backup your data as JSON or reset to default demo content.
+          Your tasks and projects are stored in the SQLite database file and synced in real time. You can also export a JSON backup or reset to default demo content.
         </p>
 
         <div className="flex flex-wrap gap-3 pt-2">

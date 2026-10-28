@@ -1,25 +1,31 @@
 // Topbar.jsx
 // The fixed top navigation bar of TaskFlow.
-// It shows the current page title, search, notifications, and user info.
-//
-// NEW CONCEPTS IN THIS FILE:
-//   1. Receiving props in a component ({ pageTitle })
-//   2. Using props to render dynamic content
-//   3. Composition — combining multiple small UI elements in one component
+// It shows the current page title, search, notifications, theme toggle, and user info.
 
 import { useState } from 'react'
-import { Search, Bell, Sun, Plus, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
+import { Search, Bell, Sun, Moon, Plus, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT: Topbar
 //
 // Props received:
-//   pageTitle          → string: the name of the current page (e.g. "Dashboard")
-//   onOpenNewTask      → function: callback when user clicks '+ New Task' button
-//   onToggleSidebar    → function: callback to toggle sidebar collapsed state
-//   isSidebarCollapsed → boolean: whether sidebar is currently collapsed
+//   pageTitle             → string: the name of the current page (e.g. "Dashboard")
+//   onOpenNewTask         → function: callback when user clicks '+ New Task' button
+//   onToggleSidebar       → function: callback to toggle sidebar collapsed state
+//   isSidebarCollapsed    → boolean: whether sidebar is currently collapsed
+//   onOpenCommandPalette  → function: callback to open the Ctrl+K command palette
+//   theme                 → string: 'light' | 'dark' | 'system'
+//   onToggleTheme         → function: callback to toggle dark / light mode
 // ─────────────────────────────────────────────────────────────────────────────
-function Topbar({ pageTitle, onOpenNewTask, onToggleSidebar, isSidebarCollapsed }) {
+function Topbar({
+  pageTitle,
+  onOpenNewTask,
+  onToggleSidebar,
+  isSidebarCollapsed,
+  onOpenCommandPalette,
+  theme = 'light',
+  onToggleTheme,
+}) {
   // Compute a time-of-day greeting using a lazy state initializer
   const [greeting] = useState(() => {
     const hour = new Date().getHours()
@@ -28,11 +34,10 @@ function Topbar({ pageTitle, onOpenNewTask, onToggleSidebar, isSidebarCollapsed 
       : 'Good evening'
   })
 
+  const isDark = theme === 'dark'
+
   return (
-    // sticky top-0 → stays at the top of the screen as you scroll content
-    // z-10 → sits above the content (lower z-index than sidebar's z-20)
-    // backdrop-blur-sm → slight blur effect on the background (glassmorphism)
-    <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10 flex items-center justify-between px-6 shrink-0 transition-all duration-300">
+    <header className="h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 flex items-center justify-between px-6 shrink-0 transition-colors duration-200">
 
       {/* ── Left Side: Toggle & Page Title ─────────────────────────── */}
       <div className="flex items-center gap-3">
@@ -40,17 +45,17 @@ function Topbar({ pageTitle, onOpenNewTask, onToggleSidebar, isSidebarCollapsed 
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="p-1.5 -ml-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 -ml-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
             title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           </button>
         )}
         <div>
-          <h1 className="text-[15px] font-semibold text-gray-900">
+          <h1 className="text-[15px] font-semibold text-gray-900 dark:text-white">
             {pageTitle || 'Dashboard'}
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
             {greeting}, Alisha 👋
           </p>
         </div>
@@ -64,7 +69,7 @@ function Topbar({ pageTitle, onOpenNewTask, onToggleSidebar, isSidebarCollapsed 
           <button
             type="button"
             onClick={onOpenNewTask}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm hover:shadow transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
             title="Create new task"
           >
             <Plus size={14} />
@@ -72,54 +77,58 @@ function Topbar({ pageTitle, onOpenNewTask, onToggleSidebar, isSidebarCollapsed 
           </button>
         )}
 
-        {/* Search button — will open a search modal in a future milestone */}
+        {/* Search button — opens Command Palette */}
         <button
           type="button"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-100"
-          title="Search"
+          onClick={onOpenCommandPalette}
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-100 dark:border-gray-700/80 cursor-pointer"
+          title="Search or press Ctrl+K"
         >
           <Search size={15} />
           <span className="hidden sm:inline text-xs">Search...</span>
-          {/* hidden sm:inline → hide on mobile, show on sm screens and up */}
-          <kbd className="hidden sm:inline text-[10px] bg-white border border-gray-200 rounded px-1.5 py-0.5 text-gray-400 font-mono">
+          <kbd className="hidden sm:inline text-[10px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-1.5 py-0.5 text-gray-400 dark:text-gray-400 font-mono">
             ⌘K
           </kbd>
         </button>
 
-        {/* Theme toggle — will switch light/dark mode in Milestone 6 */}
+        {/* Theme toggle — switches light/dark mode */}
         <button
           type="button"
-          className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-          title="Toggle theme"
+          onClick={onToggleTheme}
+          className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
+          title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'}
         >
-          <Sun size={18} />
+          {isDark ? (
+            <Sun size={18} className="text-amber-400 hover:rotate-45 transition-transform" />
+          ) : (
+            <Moon size={18} className="text-indigo-600 hover:-rotate-12 transition-transform" />
+          )}
         </button>
 
         {/* Notification bell */}
         <button
           type="button"
-          className="relative w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+          className="relative w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
           title="Notifications"
         >
           <Bell size={18} />
-          {/* Notification dot — small red circle to indicate unread items */}
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 border-2 border-white" />
+          {/* Notification dot */}
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 border-2 border-white dark:border-gray-900" />
         </button>
 
         {/* Vertical divider line */}
-        <div className="w-px h-6 bg-gray-200 mx-1" />
+        <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 mx-1" />
 
         {/* User avatar */}
-        <button
-          type="button"
-          className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-50 transition-colors"
-          title="User menu"
+        <div
+          className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors cursor-default"
+          title="User profile"
         >
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
             <span className="text-[10px] font-bold text-white">AS</span>
           </div>
-          <span className="hidden md:inline text-sm font-medium text-gray-700">Alisha</span>
-        </button>
+          <span className="hidden md:inline text-sm font-medium text-gray-700 dark:text-gray-200">Alisha</span>
+        </div>
 
       </div>
     </header>

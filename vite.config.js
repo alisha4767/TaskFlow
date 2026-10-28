@@ -8,4 +8,12 @@ export default defineConfig({
     react(),       // Enables React JSX transformation
     tailwindcss(), // Enables Tailwind CSS processing
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

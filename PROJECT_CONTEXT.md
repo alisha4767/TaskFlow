@@ -85,7 +85,14 @@ TaskFlow/
 ### LocalStorage Persistence
 - **Tasks & Projects**: Stored in `localStorage` keys `taskflow_tasks` and `taskflow_projects`. All task additions, deletions, and status toggles automatically sync in real-time.
 - **Sidebar State**: Remembered in `localStorage` under `taskflow_sidebar_collapsed` so user preference persists across page reloads.
+- **View Preference**: Remembered in `localStorage` under `taskflow_tasks_view` ('list' or 'board').
 - **Reset Support**: Resetting data in Settings automatically rewrites `localStorage` with fresh defaults.
+
+### Interactive Kanban Board View
+- **Dual View Modes**: Switch seamlessly between **List** and **Board** layouts with view preference saved to `localStorage`.
+- **4 Status Columns**: `To Do`, `In Progress`, `In Review`, and `Completed` with color-coded tops and count badges.
+- **HTML5 Drag-and-Drop**: Drag task cards between columns with hover ring indicators and instant state synchronization.
+- **Quick Actions**: One-click advance button (`ChevronRight`) to cycle through statuses, completion checkboxes, and column-specific `+` quick-add buttons.
 
 ---
 
@@ -99,4 +106,6 @@ TaskFlow/
 | 2026-10-23 | `feat: collapsible sidebar` | Implemented expanded/collapsed states with dual toggle buttons and smooth transitions |
 | 2026-10-23 | `docs: context file` | Initialized `PROJECT_CONTEXT.md` for ongoing feature tracking and change recording |
 | 2026-10-23 | `feat: local storage persistence` | Added real-time localStorage sync for tasks, projects, and sidebar collapsed preference |
+| 2026-10-24 | `feat: kanban board view` | Added Kanban board view with HTML5 drag-and-drop, quick column add, and view toggling |
+
 

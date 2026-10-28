@@ -1,11 +1,12 @@
 // App.jsx — Root Application Component
 //
 // ENHANCEMENTS:
-//   1. LocalStorage Persistence for tasks, projects, theme, sidebar
-//   2. Command Palette (Ctrl+K / ⌘K) with live search and actions
-//   3. Dark Mode system with instant theme switching & persistence
-//   4. Task Edit Details Drawer with full field editing & overdue detection
-//   5. Global state lifting across all routes
+//   1. Full REST API integration with SQLite backend (Express + better-sqlite3)
+//   2. Seamless LocalStorage fallback when offline or running standalone
+//   3. Command Palette (Ctrl+K / ⌘K) with live search and actions
+//   4. Dark Mode system with instant theme switching & persistence
+//   5. Task Edit Details Drawer with full field editing & overdue detection
+//   6. Global state lifting across all routes
 
 import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
@@ -18,10 +19,11 @@ import SettingsPage from './pages/SettingsPage'
 import CreateTaskModal from './components/tasks/CreateTaskModal'
 import TaskDetailDrawer from './components/tasks/TaskDetailDrawer'
 import CommandPalette from './components/common/CommandPalette'
+import * as api from './services/api'
 import { tasks as initialTasks, projects as initialProjects } from './data/mockData'
 
 function App() {
-  // ── 1. The Core Application State with LocalStorage Persistence ───────────
+  // ── 1. The Core Application State with LocalStorage & SQLite Sync ──────────
   const [tasks, setTasks] = useState(() => {
     try {
       const saved = localStorage.getItem('taskflow_tasks')
@@ -40,7 +42,48 @@ function App() {
     }
   })
 
-  // Synchronize tasks to localStorage on change
+  const [isBackendConnected, setIsBackendConnected] = useState(false)
+
+  // Initial load: probe backend health and load from SQLite database
+  useEffect(() => {
+    let isMounted = true
+
+    async function syncWithBackend() {
+      try {
+        const health = await api.checkBackendHealth()
+        if (health.isOnline && isMounted) {
+          setIsBackendConnected(true)
+          const [dbTasks, dbProjects] = await Promise.all([
+            api.getTasks(),
+            api.getProjects(),
+          ])
+          if (isMounted) {
+            if (Array.isArray(dbTasks) && dbTasks.length > 0) {
+              setTasks(dbTasks)
+            }
+            if (Array.isArray(dbProjects) && dbProjects.length > 0) {
+              setProjects(dbProjects)
+            }
+          }
+        } else if (isMounted) {
+          setIsBackendConnected(false)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setIsBackendConnected(false)
+          console.info('Backend unavailable, running in local storage fallback mode:', err.message)
+        }
+      }
+    }
+
+    syncWithBackend()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Synchronize tasks to localStorage on change (as cache & fallback)
   useEffect(() => {
     try {
       localStorage.setItem('taskflow_tasks', JSON.stringify(tasks))
@@ -134,6 +177,12 @@ function App() {
     if (selectedTask?.id === updatedTask.id) {
       setSelectedTask(updatedTask)
     }
+
+    if (isBackendConnected) {
+      api.updateTask(updatedTask.id, updatedTask).catch((err) => {
+        console.warn('API update failed, saved to local cache:', err.message)
+      })
+    }
   }
 
   // ── 5. Create Task Modal Open/Close State ──────────────────────────────────
@@ -147,10 +196,11 @@ function App() {
 
   // ── 6. Handler: Toggle Task Status ─────────────────────────────────────────
   function handleToggleTaskStatus(taskId) {
+    let nextStatus = 'todo'
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
         if (task.id === taskId) {
-          const nextStatus = task.status === 'completed' ? 'todo' : 'completed'
+          nextStatus = task.status === 'completed' ? 'todo' : 'completed'
           const updated = { ...task, status: nextStatus }
           if (selectedTask?.id === taskId) {
             setSelectedTask(updated)
@@ -160,6 +210,12 @@ function App() {
         return task
       })
     )
+
+    if (isBackendConnected) {
+      api.updateTask(taskId, { status: nextStatus }).catch((err) => {
+        console.warn('API update status failed, saved to local cache:', err.message)
+      })
+    }
   }
 
   // ── 7. Handler: Direct Update Task Status (For Kanban & dropdowns) ─────────
@@ -176,11 +232,23 @@ function App() {
         return task
       })
     )
+
+    if (isBackendConnected) {
+      api.updateTask(taskId, { status: newStatus }).catch((err) => {
+        console.warn('API update status failed, saved to local cache:', err.message)
+      })
+    }
   }
 
   // ── 8. Handler: Add a New Task ─────────────────────────────────────────────
   function handleAddTask(newTask) {
     setTasks((prevTasks) => [newTask, ...prevTasks])
+
+    if (isBackendConnected) {
+      api.createTask(newTask).catch((err) => {
+        console.warn('API task creation failed, saved to local cache:', err.message)
+      })
+    }
   }
 
   // ── 9. Handler: Delete a Task ──────────────────────────────────────────────
@@ -190,10 +258,27 @@ function App() {
       setIsDetailDrawerOpen(false)
       setSelectedTask(null)
     }
+
+    if (isBackendConnected) {
+      api.deleteTask(taskId).catch((err) => {
+        console.warn('API task deletion failed, removed from local cache:', err.message)
+      })
+    }
   }
 
   // ── 10. Handler: Reset Data to Defaults ────────────────────────────────────
-  function handleResetData() {
+  async function handleResetData() {
+    if (isBackendConnected) {
+      try {
+        const data = await api.resetDatabase()
+        if (data.tasks) setTasks(data.tasks)
+        if (data.projects) setProjects(data.projects)
+        return
+      } catch (err) {
+        console.warn('Backend reset failed, resetting local state:', err.message)
+      }
+    }
+
     setTasks(initialTasks)
     setProjects(initialProjects)
     try {
@@ -225,6 +310,7 @@ function App() {
       onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       theme={theme}
       onToggleTheme={handleToggleTheme}
+      isBackendConnected={isBackendConnected}
     >
       <Routes>
         {/* Main Dashboard Route */}
@@ -287,6 +373,7 @@ function App() {
               theme={theme}
               onSelectTheme={handleSelectTheme}
               onResetData={handleResetData}
+              isBackendConnected={isBackendConnected}
             />
           }
         />

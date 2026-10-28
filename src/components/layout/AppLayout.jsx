@@ -1,16 +1,5 @@
 // AppLayout.jsx
 // The master layout component — assembles Sidebar, Topbar, and the main content.
-//
-// NEW CONCEPT: The 'children' prop
-//
-// When you write:
-//   <AppLayout>
-//     <SomeComponent />
-//   </AppLayout>
-//
-// React automatically passes <SomeComponent /> as 'props.children' to AppLayout.
-// This lets AppLayout be a reusable WRAPPER — the same shell works for any page,
-// because the page's unique content is passed in via children.
 
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -30,11 +19,21 @@ const titleMap = {
 // COMPONENT: AppLayout
 //
 // Props received:
-//   children      → whatever is nested between <AppLayout>...</AppLayout> tags
-//   pageTitle     → optional override for the current page name
-//   onOpenNewTask → passed down to Topbar for the '+ New Task' button
+//   children             → whatever is nested between <AppLayout>...</AppLayout> tags
+//   pageTitle            → optional override for the current page name
+//   onOpenNewTask        → passed down to Topbar for the '+ New Task' button
+//   onOpenCommandPalette → passed down to Topbar for search button / palette
+//   theme                → 'light' | 'dark' | 'system'
+//   onToggleTheme        → callback to toggle theme
 // ─────────────────────────────────────────────────────────────────────────────
-function AppLayout({ children, pageTitle, onOpenNewTask }) {
+function AppLayout({
+  children,
+  pageTitle,
+  onOpenNewTask,
+  onOpenCommandPalette,
+  theme = 'light',
+  onToggleTheme,
+}) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     try {
       const saved = localStorage.getItem('taskflow_sidebar_collapsed')
@@ -60,7 +59,7 @@ function AppLayout({ children, pageTitle, onOpenNewTask }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <Sidebar
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
@@ -75,6 +74,9 @@ function AppLayout({ children, pageTitle, onOpenNewTask }) {
           onOpenNewTask={onOpenNewTask}
           onToggleSidebar={handleToggleSidebar}
           isSidebarCollapsed={isSidebarCollapsed}
+          onOpenCommandPalette={onOpenCommandPalette}
+          theme={theme}
+          onToggleTheme={onToggleTheme}
         />
 
         {/* Main content area — this is where each page's content appears */}

@@ -8,7 +8,10 @@
 /* 2. Import Tailwind CSS v4 */
 @import "tailwindcss";
 
-/* 3. CSS Custom Properties (Variables) */
+/* 3. Enable class-based dark mode variant in Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 4. CSS Custom Properties (Variables) */
 :root {
   /* Brand colors */
   --color-brand-50:  #eef2ff;
@@ -41,7 +44,7 @@
   --topbar-height: 64px;
 }
 
-/* 4. Safe base typography and font rendering inside @layer base */
+/* 5. Safe base typography and font rendering inside @layer base */
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -54,5 +57,11 @@
     background-color: var(--color-gray-50);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark body {
+    color: #f3f4f6;
+    background-color: #0b0f19;
   }
 }

@@ -59,6 +59,12 @@ function App() {
 
   // ── 2. Modal Open/Close State ──────────────────────────────────────────────
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalInitialStatus, setModalInitialStatus] = useState('todo')
+
+  function handleOpenModal(initialStatus = 'todo') {
+    setModalInitialStatus(typeof initialStatus === 'string' ? initialStatus : 'todo')
+    setIsModalOpen(true)
+  }
 
   // ── 3. Handler: Toggle Task Status ─────────────────────────────────────────
   function handleToggleTaskStatus(taskId) {
@@ -73,17 +79,26 @@ function App() {
     )
   }
 
-  // ── 4. Handler: Add a New Task ─────────────────────────────────────────────
+  // ── 4. Handler: Direct Update Task Status (For Kanban & dropdowns) ─────────
+  function handleUpdateTaskStatus(taskId, newStatus) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    )
+  }
+
+  // ── 5. Handler: Add a New Task ─────────────────────────────────────────────
   function handleAddTask(newTask) {
     setTasks((prevTasks) => [newTask, ...prevTasks])
   }
 
-  // ── 5. Handler: Delete a Task ──────────────────────────────────────────────
+  // ── 6. Handler: Delete a Task ──────────────────────────────────────────────
   function handleDeleteTask(taskId) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId))
   }
 
-  // ── 6. Handler: Reset Data to Defaults ─────────────────────────────────────
+  // ── 7. Handler: Reset Data to Defaults ─────────────────────────────────────
   function handleResetData() {
     setTasks(initialTasks)
     setProjects(initialProjects)
@@ -96,7 +111,7 @@ function App() {
   }
 
   return (
-    <AppLayout onOpenNewTask={() => setIsModalOpen(true)}>
+    <AppLayout onOpenNewTask={() => handleOpenModal('todo')}>
       <Routes>
         {/* Main Dashboard Route */}
         <Route
@@ -106,7 +121,7 @@ function App() {
               tasks={tasks}
               onToggleTaskStatus={handleToggleTaskStatus}
               onDeleteTask={handleDeleteTask}
-              onOpenNewTask={() => setIsModalOpen(true)}
+              onOpenNewTask={() => handleOpenModal('todo')}
             />
           }
         />
@@ -122,8 +137,9 @@ function App() {
               tasks={tasks}
               projects={projects}
               onToggleTaskStatus={handleToggleTaskStatus}
+              onUpdateTaskStatus={handleUpdateTaskStatus}
               onDeleteTask={handleDeleteTask}
-              onOpenNewTask={() => setIsModalOpen(true)}
+              onOpenNewTask={handleOpenModal}
             />
           }
         />
@@ -135,7 +151,7 @@ function App() {
             <ProjectsPage
               projects={projects}
               tasks={tasks}
-              onOpenNewTask={() => setIsModalOpen(true)}
+              onOpenNewTask={() => handleOpenModal('todo')}
             />
           }
         />
@@ -158,10 +174,12 @@ function App() {
 
       {/* Global Create Task Modal */}
       <CreateTaskModal
+        key={`${modalInitialStatus}-${isModalOpen}`}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddTask={handleAddTask}
         projects={projects}
+        defaultStatus={modalInitialStatus}
       />
     </AppLayout>
   )
